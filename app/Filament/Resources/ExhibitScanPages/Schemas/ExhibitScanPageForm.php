@@ -29,11 +29,7 @@ class ExhibitScanPageForm
                     ->options(
                         $exhibits->pluck('name', 'id')->toArray()
                     ),
-                // Select::make('exhibit_scan_page_status_id')
-                //     ->required()
-                //     ->options(
-                //         $statuses->pluck('name', 'id')->toArray()
-                //     ),
+         
                 FileUpload::make('path')
                     ->required()
                     ->columnSpanFull()
@@ -41,8 +37,47 @@ class ExhibitScanPageForm
                     ->image()
                     ->directory('exhibit-photos')
                     ->visibility('public'),
-                // Textarea::make('scan_result')
-                //     ->columnSpanFull(),
+ 
+                Textarea::make('scan_result')
+                    ->label('Результат распознавания')
+                    ->columnSpanFull()
+                    ->autosize()
+                    ->helperText('Проверьте результат перед одобрением')
+
+                    ->visible(fn ($record) =>
+                        $record &&
+                        filled($record->scan_result)
+                    )
+
+                    ->disabled(fn ($record) =>
+                        $record &&
+                        $record->exhibit_scan_page_status_id !==
+                            ExhibitScanPageStatus::VERIFYING
+                    ),
+
+                Select::make('exhibit_scan_page_status_id')
+                    ->label('Статус')
+                    ->options(
+                        ExhibitScanPageStatus::query()
+                            ->whereIn('id', [
+                                ExhibitScanPageStatus::VERIFYING,
+                                ExhibitScanPageStatus::VERIFIED,
+                                ExhibitScanPageStatus::REFUSED,
+                            ])
+                            ->pluck('name', 'id')
+                            ->toArray()
+                    )
+
+                    ->visible(fn ($record) =>
+                        $record &&
+                        filled($record->scan_result)
+                    )
+
+                    ->disabled(fn ($record) =>
+                        $record &&
+                        $record->exhibit_scan_page_status_id !==
+                            ExhibitScanPageStatus::VERIFYING
+                    ),
             ]);
     }
 }

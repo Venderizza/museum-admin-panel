@@ -16,4 +16,10 @@ class Exhibit extends Model
     {
         return $this->hasMany(ExhibitScanPage::class);
     }
+
+    protected $casts = [
+        'arrived_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
 }
