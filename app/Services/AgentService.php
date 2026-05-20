@@ -15,10 +15,11 @@ class AgentService {
     public function postExhibit(ExhibitScanPage $page) : bool {
         $page->load('exhibit');
 
-        $response = Http::withUrlParameters(['id' => $page->id])
+        $response = Http::withUrlParameters(['document_id' => $page->id])
         ->post($this->sendExhibitUrl, [
             'title'  => $page->exhibit->name,
             'body' => $page->scan_result . ' ' . $page->exhibit->description,
+            'metadata' => ''
         ]);
 
         if ($response->ok()){

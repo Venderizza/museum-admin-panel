@@ -40,48 +40,35 @@ class CardsView extends Component
 
         $this->searchQuery = '';
 
-        // $response = Http::get(
-        //     config('services.search.url'),
-        //     [
-        //         'message' => $query,
-        //     ]
-        // );
+        $response = Http::post(
+            config('api.receive_message_data'),
+            [
+                'messages' => [
+                    'role' => 'user',
+                    'content' => $query,
+                ],
+                "top_k" => 10
+            ]
+        );
 
-        // if (! $response->successful()) {
-        //     $this->messages[] = [
-        //         'type' => 'bot',
-        //         'text' => 'Ошибка поиска',
-        //     ];
+        if (! $response->successful()) {
+            $this->messages[] = [
+                'type' => 'bot',
+                'text' => 'Ошибка поиска',
+            ];
 
-        //     return;
-        // }
+            return;
+        }
 
-        // $data = $response->json();
-
-        // тестовое
-        $exhibits = Exhibit::query()
-            ->where('description', 'like', '%' . $query . '%')
-            ->get();
-
-        $ids = $exhibits->pluck('id')->values()->all();
-
-        $response = [
-            'text' => $this->buildResponseText($query, $exhibits),
-            'id_list' => $ids,
-        ];
-
-        $this->messages[] = [
-            'type' => 'bot',
-            'text' => $response['text'],
-        ];
+        $data = $response->json();
 
         // ответ бота
-        // $this->messages[] = [
-        //     'type' => 'bot',
-        //     'text' => $data['text'] ?? '',
-        // ];
+        $this->messages[] = [
+            'type' => 'bot',
+            'text' => $data['text'] ?? '',
+        ];
 
-        // $ids = $data['id_list'] ?? [];
+        $ids = $data['id_list'] ?? [];
 
         if (empty($ids)) {
             $this->cards = collect();
@@ -93,12 +80,6 @@ class CardsView extends Component
             ->whereIn('id', $ids)
             ->orderByRaw('FIELD(id, ' . implode(',', $ids) . ')')
             ->get();
-
-        // $this->cards = Exhibit::query()
-        //     ->with('photos')
-        //     ->whereIn('id', $ids)
-        //     ->orderByRaw('FIELD(id, ' . implode(',', $ids) . ')')
-        //     ->get();
     }
 
     private function buildResponseText(string $query, $exhibits): string

@@ -13,17 +13,23 @@
 
                 <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
 
-                    <div class="flex flex-col gap-3 mb-4 max-h-96 overflow-y-auto">
+                    <div class="flex flex-col gap-3 mb-4 max-h-[80vh] overflow-y-auto">
 
                         @foreach ($messages as $message)
 
                             @if ($message['type'] === 'user')
-                                <div class="bg-gray-100 text-gray-700 rounded-2xl rounded-tr-none px-4 py-2 max-w-[85%]">
-                                    {{ $message['text'] }}
+                                {{-- USER (справа) --}}
+                                <div class="flex justify-end">
+                                    <div class="bg-red-500 text-white rounded-2xl rounded-tr-none px-4 py-2 max-w-[85%]">
+                                        {{ $message['text'] }}
+                                    </div>
                                 </div>
                             @else
-                                <div class="bg-red-500 text-white rounded-2xl rounded-tl-none px-4 py-2 max-w-[85%] self-end">
-                                    {{ $message['text'] }}
+                                {{-- BOT (слева) --}}
+                                <div class="flex justify-start">
+                                    <div class="bg-gray-100 text-gray-700 rounded-2xl rounded-tl-none px-4 py-2 max-w-[85%]">
+                                        {{ $message['text'] }}
+                                    </div>
                                 </div>
                             @endif
 
