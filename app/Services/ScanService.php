@@ -16,7 +16,7 @@ class ScanService {
         $page->load('exhibit');
 
         $response = Http::withUrlParameters(['id' => $page->id])
-        ->attach('body', Storage::disk('public')->get($page->path))
+        ->attach('file', Storage::disk('public')->get($page->path), $page->path, ['Content-Type' => 'image/jpeg'])
         ->post($this->sendScanUrl, [
             'title'  => $page->exhibit->name
         ]);

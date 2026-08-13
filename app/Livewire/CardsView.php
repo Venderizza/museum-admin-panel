@@ -44,12 +44,15 @@ class CardsView extends Component
             config('api.receive_message_data'),
             [
                 'messages' => [
-                    'role' => 'user',
-                    'content' => $query,
+                    [
+                        'role' => 'user',
+                        'content' => $query,
+                    ],
                 ],
-                "top_k" => 10
+                'top_k' => 10,
             ]
         );
+
 
         if (! $response->successful()) {
             $this->messages[] = [
@@ -75,10 +78,16 @@ class CardsView extends Component
             return;
         }
 
-        $this->cards = Exhibit::query()
+       $this->cards = Exhibit::query()
             ->with('photos')
             ->whereIn('id', $ids)
-            ->orderByRaw('FIELD(id, ' . implode(',', $ids) . ')')
+            ->orderByRaw(
+                'CASE ' .
+                collect($ids)
+                    ->map(fn ($id, $index) => "WHEN id = {$id} THEN {$index}")
+                    ->implode(' ') .
+                ' END'
+            )
             ->get();
     }
 

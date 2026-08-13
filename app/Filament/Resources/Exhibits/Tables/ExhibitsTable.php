@@ -8,12 +8,17 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Actions\Action;
+use App\Models\Exhibit;
+use App\Services\AgentService;
+use Filament\Notifications\Notification;
 
 class ExhibitsTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+
             ->columns([
                 TextColumn::make('name')
                     ->label('Название')
@@ -49,6 +54,36 @@ class ExhibitsTable
             ])
             ->recordActions([
                 EditAction::make(),
+                Action::make('process')
+                ->label('Индексировать')
+                ->icon('heroicon-o-cog-6-tooth')
+                ->color('primary')
+                ->action(function (Exhibit $record, AgentService $service) {
+                    $success = $service->postCleanExhibit($record);
+
+                    if ($success) {
+                        Notification::make()
+                            ->title('Экспонат отправлен на обработку')
+                            ->success()
+                            ->send();
+                        return;
+
+                    } else {
+                        $reindexSuccess = $service->reindexCleanExhibit($record);
+                        if ($reindexSuccess) {
+                            Notification::make()
+                            ->title('Экспонат отправлен на обработку')
+                            ->success()
+                            ->send();
+                        } else {
+                            Notification::make()
+                            ->title('Не удалось отправить экспонат')
+                            ->danger()
+                            ->send();
+                        }
+                    }
+                    
+                }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

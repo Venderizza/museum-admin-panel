@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class ExhibitScanPageStatus extends Model
 {
+    protected $fillable = [
+        'name',
+    ];
+
     const int WAITS = 1;
     const int PROCESSING = 2;
     const int ERROR = 3;
