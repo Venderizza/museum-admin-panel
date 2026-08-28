@@ -4,9 +4,11 @@ namespace App\Services;
 
 use App\Models\Exhibit;
 use App\Models\ExhibitScanPage;
+use App\Models\ExhibitScanPageExternalImageData;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+
 
 class ScanService {
 
@@ -15,13 +17,22 @@ class ScanService {
     public function postScan(ExhibitScanPage $page) : bool {
         $page->load('exhibit');
 
-        $response = Http::withUrlParameters(['id' => $page->id])
-        ->attach('file', Storage::disk('public')->get($page->path), $page->path, ['Content-Type' => 'image/jpeg'])
-        ->post($this->sendScanUrl, [
+        $response = Http::attach('file', Storage::disk('public')
+            ->get($page->path), $page->path, ['Content-Type' => 'image/jpeg'])
+            ->post($this->sendScanUrl, [
             'title'  => $page->exhibit->name
         ]);
 
         if ($response->ok()){
+            $data = $response->json();
+            $imageId = $data['image_id'];
+            Log::error("1");
+
+            ExhibitScanPageExternalImageData::create([
+                'image_id' => $imageId,
+                'exhibit_scan_page_id' => $page->id,
+            ]);
+
             return true;
         } else {
             Log::error($response->getReasonPhrase());

@@ -17,4 +17,8 @@ class ExhibitScanPage extends Model
     {
         return $this->belongsTo(ExhibitScanPageStatus::class, 'exhibit_scan_page_status_id');
     }
+
+    public function externalImagesData(){
+        return $this->hasMany(ExhibitScanPageExternalImageData::class);
+    }
 }

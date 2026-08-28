@@ -43,8 +43,8 @@ class ExhibitScanPagesTable
                     ->label('Статус')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
-                        'ожидает обработки' => 'warning',
-                        'в обработке' => 'info',
+                        'ожидает обработки' => 'gray',
+                        'в обработке' => 'warning',
                         'на рассмотрении' => 'info',
                         'одобрено' => 'success',
                         'отклонено' => 'danger',
@@ -65,6 +65,7 @@ class ExhibitScanPagesTable
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->poll('2s');
     }
 }
